@@ -13,7 +13,7 @@ So... what you need to run this bot?
 0. Create an empty subfolder named "databases".
 0. Download the py-ts3 library and put it inside its own ts3 folder.
 0. Everything should look like this: http://prntscr.com/c870pa
-0. Now create a ServerQuery user to which the bot will connect and whitelist it so it can make multiple connections.
+0. Now create a ServerQuery user with admin permissions to which the bot will connect and whitelist it so it can make multiple connections.
 0. Edit the login_data_file file so nothing is empty
 0. Then finally just launch the ts3pybot file :D
 
