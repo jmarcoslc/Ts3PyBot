@@ -26,7 +26,6 @@ import ts3
 import datetime
 import time
 import json
-import telnetlib
 import textwrap
 import sys
 import subprocess
