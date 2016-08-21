@@ -35,8 +35,8 @@ from urllib import request
 from random import choice, sample
 from login_data_file import *
 
-INSTALLED_VERSION = "5.2"
-VERSION_COMMENTS = "Comando taxi mejorado, fixes de Android y actualización de script."
+INSTALLED_VERSION = "5.2.1"
+VERSION_COMMENTS = "API builds añadido."
 
 #################
 # Main bot Code #
