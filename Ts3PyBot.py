@@ -36,6 +36,7 @@ from random import choice, sample
 from login_data_file import *
 
 INSTALLED_VERSION = "5.2"
+VERSION_COMMENTS = "Comando taxi mejorado, fixes de Android y actualización de script."
 
 #################
 # Main bot Code #
@@ -962,7 +963,7 @@ def command_tiempo():
     +" [/color][/b]Horas/Minutos/Segundos.")
 
 def command_version():
-    send_text_to_channel(my_channel, "[b]Version 5.2: [/b]Comando taxi mejorado, fixes de Android y actualización.")
+    send_text_to_channel(my_channel, "[b]Version {}: [/b]{}".format(INSTALLED_VERSION, VERSION_COMMENTS))
 
 def command_rng():
     send_text_to_channel(my_channel, "Numero al azar: [b]" + str(sample(range(1000), 1))[1:-1] + "[/b]")
