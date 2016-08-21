@@ -1,4 +1,4 @@
-#!/usr/bin/python3.5
+#!/usr/bin/python3.4
 
 # The MIT License (MIT)
 # 
@@ -34,6 +34,9 @@ import re
 from urllib import request
 from random import choice, sample
 from login_data_file import *
+
+INSTALLED_VERSION = "5.2"
+VERSION_COMMENTS = "Comando taxi mejorado, fixes de Android y actualización de script."
 
 #################
 # Main bot Code #
@@ -433,6 +436,8 @@ def channel_message_handler(user, message, userid, uniqueid):
         command_patchday(text_after_command, userid)
     elif command == "!clon": 
         command_clone(text_after_command, userid)
+    elif command == "!actualizarbot":
+    	command_botupdate(text_after_command, userid)
 
     #Admin Permissions required
     elif command == "!global": 
@@ -505,6 +510,12 @@ def channel_message_handler(user, message, userid, uniqueid):
 ############
 # Commands #
 ############
+
+def command_botupdate(text_after_command, userid):
+	if check_if_superadmin(userid):
+		send_text_to_channel(my_channel, "Actualizando BOT")
+		subprocess.call(["./bot_update.sh", str(INSTALLED_VERSION)])
+		send_text_to_channel(my_channel, "No hay actualización disponible") #If reach this line, there is no update available.
 
 def command_kick(user, text_after_command, userid, uniqueid):
     send_text_to_channel(my_channel, "Error: Comando sin programar.", "red")
@@ -952,7 +963,7 @@ def command_tiempo():
     +" [/color][/b]Horas/Minutos/Segundos.")
 
 def command_version():
-    send_text_to_channel(my_channel, "[b]Version 5.2: [/b]Comando taxi mejorado y fixes de Android.")
+    send_text_to_channel(my_channel, "[b]Version {}: [/b]{}".format(INSTALLED_VERSION, VERSION_COMMENTS))
 
 def command_rng():
     send_text_to_channel(my_channel, "Numero al azar: [b]" + str(sample(range(1000), 1))[1:-1] + "[/b]")
