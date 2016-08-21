@@ -35,7 +35,7 @@ from urllib import request
 from random import choice, sample
 from login_data_file import *
 
-INSTALLED_VERSION = "5.2.1"
+INSTALLED_VERSION = "5.3"
 VERSION_COMMENTS = "Comando de actualización del bot mejorado."
 
 #################
@@ -409,7 +409,7 @@ def private_message_handler(user, message, userid, uniqueid):
     message_divided = get_command(message)
     command =  message_divided[0]
     text_after_command =  message_divided[1]
-    time.sleep(0.2) #This delay is to prevent an issue in the chat where the bot would appear that answers before you send a command.
+    time.sleep(1) #This delay is to prevent an issue in the chat where the bot would appear that answers before you send a command.
     if command.lower() == "!say":
         command_say(userid, text_after_command)
     elif command.lower() == "!ignorame":
