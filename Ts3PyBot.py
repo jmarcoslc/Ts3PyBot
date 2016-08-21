@@ -35,8 +35,8 @@ from urllib import request
 from random import choice, sample
 from login_data_file import *
 
-INSTALLED_VERSION = "5.2"
-VERSION_COMMENTS = "Comando taxi mejorado, fixes de Android y actualización de script."
+INSTALLED_VERSION = "5.2.1"
+VERSION_COMMENTS = "Comando de actualización del bot mejorado."
 
 #################
 # Main bot Code #
@@ -437,7 +437,7 @@ def channel_message_handler(user, message, userid, uniqueid):
     elif command == "!clon": 
         command_clone(text_after_command, userid)
     elif command == "!actualizarbot":
-    	command_botupdate(text_after_command, userid)
+    	command_botupdate(userid)
 
     #Admin Permissions required
     elif command == "!global": 
@@ -511,11 +511,15 @@ def channel_message_handler(user, message, userid, uniqueid):
 # Commands #
 ############
 
-def command_botupdate(text_after_command, userid):
-	if check_if_superadmin(userid):
-		send_text_to_channel(my_channel, "Actualizando BOT")
-		subprocess.call(["./bot_update.sh", str(INSTALLED_VERSION)])
-		send_text_to_channel(my_channel, "No hay actualización disponible") #If reach this line, there is no update available.
+def command_botupdate(userid):
+    if check_if_superadmin(userid):
+        send_text_to_channel(my_channel, "Actualizando BOT")
+        try:
+            subprocess.call(["./bot_update.sh", str(INSTALLED_VERSION)])
+        except Exception as e:
+            send_text_to_channel(my_channel, "[b]Error:[/b] "+str(e), "red")
+        else:
+            send_text_to_channel(my_channel, "No hay actualización disponible") #If reach this line, there is no update available.
 
 def command_kick(user, text_after_command, userid, uniqueid):
     send_text_to_channel(my_channel, "Error: Comando sin programar.", "red")
