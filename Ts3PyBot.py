@@ -35,7 +35,7 @@ from urllib import request
 from random import choice, sample
 from login_data_file import *
 
-INSTALLED_VERSION = "5.3"
+INSTALLED_VERSION = "5.2.1"
 VERSION_COMMENTS = "Comando de actualización del bot mejorado."
 
 #################
