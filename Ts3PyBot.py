@@ -962,7 +962,7 @@ def command_tiempo():
     +" [/color][/b]Horas/Minutos/Segundos.")
 
 def command_version():
-    send_text_to_channel(my_channel, "[b]Version 5.2: [/b]Comando taxi mejorado y fixes de Android.")
+    send_text_to_channel(my_channel, "[b]Version 5.2: [/b]Comando taxi mejorado, fixes de Android y actualización.")
 
 def command_rng():
     send_text_to_channel(my_channel, "Numero al azar: [b]" + str(sample(range(1000), 1))[1:-1] + "[/b]")
