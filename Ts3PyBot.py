@@ -36,7 +36,7 @@ from random import choice, sample
 from login_data_file import *
 
 INSTALLED_VERSION = "5.2.1"
-VERSION_COMMENTS = "API builds añadido."
+VERSION_COMMENTS = "Comando de actualización del bot mejorado."
 
 #################
 # Main bot Code #
