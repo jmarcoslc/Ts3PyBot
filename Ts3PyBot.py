@@ -513,7 +513,7 @@ def channel_message_handler(user, message, userid, uniqueid):
 def command_botupdate(text_after_command, userid):
 	if check_if_superadmin(userid):
 		send_text_to_channel(my_channel, "Actualizando BOT")
-		subprocess.call(["bot_update.sh", str(INSTALLED_VERSION)])
+		subprocess.call(["./bot_update.sh", str(INSTALLED_VERSION)])
 		send_text_to_channel(my_channel, "No hay actualización disponible") #If reach this line, there is no update available.
 
 def command_kick(user, text_after_command, userid, uniqueid):
