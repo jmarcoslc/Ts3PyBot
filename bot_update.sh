@@ -1,6 +1,6 @@
 #!/bin/bash
 
-URL_MASTER="https://github.com/jmarcoslc/Ts3PyBot/archive/master.zip";
+URL_MASTER="https://github.com/Aens/Ts3PyBot/archive/master.zip";
 PY_NAME="Ts3PyBot";
 SHELL_SCRIPT_NAME="bot_update";
 
