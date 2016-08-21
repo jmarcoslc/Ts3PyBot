@@ -35,6 +35,8 @@ from urllib import request
 from random import choice, sample
 from login_data_file import *
 
+INSTALLED_VERSION = "5.2"
+
 #################
 # Main bot Code #
 #################
@@ -433,6 +435,8 @@ def channel_message_handler(user, message, userid, uniqueid):
         command_patchday(text_after_command, userid)
     elif command == "!clon": 
         command_clone(text_after_command, userid)
+    elif command == "!actualizarbot":
+    	command_botupdate(text_after_command, userid)
 
     #Admin Permissions required
     elif command == "!global": 
@@ -505,6 +509,11 @@ def channel_message_handler(user, message, userid, uniqueid):
 ############
 # Commands #
 ############
+
+def command_botupdate(text_after_command, userid):
+	if check_if_superadmin(userid):
+		send_text_to_channel(my_channel, "Actualizando BOT")
+		subprocess.call(["bot_update.sh", str(INSTALLED_VERSION)])
 
 def command_kick(user, text_after_command, userid, uniqueid):
     send_text_to_channel(my_channel, "Error: Comando sin programar.", "red")
