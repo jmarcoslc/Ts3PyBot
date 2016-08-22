@@ -35,8 +35,8 @@ from urllib import request
 from random import choice, sample
 from login_data_file import *
 
-INSTALLED_VERSION = "5.2.1"
-VERSION_COMMENTS = "API builds añadido."
+INSTALLED_VERSION = "5.3"
+VERSION_COMMENTS = "Comando !Kick añadido."
 
 #################
 # Main bot Code #
@@ -539,7 +539,7 @@ def command_botupdate(userid):
 
 def command_kick(user, text_after_command, userid):
     chance_of_backfire = sample(range(100), 1)[0]
-    if chance_of_backfire > 25:
+    if chance_of_backfire > 10:
         kick_id = userid
     else:
         kick_id = get_target_id(text_after_command)
