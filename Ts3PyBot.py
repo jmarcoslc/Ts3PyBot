@@ -35,7 +35,7 @@ from urllib import request
 from random import choice, sample
 from login_data_file import *
 
-INSTALLED_VERSION = "5.3"
+INSTALLED_VERSION = "5.3.1"
 VERSION_COMMENTS = "Comando !Kick añadido."
 
 #################
@@ -503,7 +503,7 @@ def channel_message_handler(user, message, userid, uniqueid):
     elif command == "!sierpes": 
         command_sierpes(user, text_after_command, userid, uniqueid)
     elif command == "!kick":
-        command_kick(user, text_after_command, userid)
+        command_kick(user, text_after_command, userid, uniqueid)
     elif command == "+taxi": 
         command_plustaxi(user, text_after_command, userid)
     elif command == "-taxi": 
@@ -537,24 +537,28 @@ def command_botupdate(userid):
         else:
             send_text_to_channel(my_channel, "No hay actualización disponible") #If reach this line, there is no update available.
 
-def command_kick(user, text_after_command, userid):
-    chance_of_backfire = sample(range(100), 1)[0]
-    if chance_of_backfire > 10:
-        kick_id = userid
+def command_kick(user, text_after_command, userid, uniqueid):
+    global kicker_on_cooldown
+    if kicker_on_cooldown == uniqueid:
+        send_text_to_channel(my_channel, "[b]Error:[/b] "+user+", juega limpio y deja de abusar.", "red")
     else:
-        kick_id = get_target_id(text_after_command)
-    try:
-        target_info =  get_client_info(kick_id)
-        target_channel = target_info.parsed[0]['cid']
-        target_name = target_info.parsed[0]['client_nickname']
-        if target_channel == my_channel:
-            ts3conn.clientkick(reasonid=4, reasonmsg="Uso el comando !kick contra "+target_name+" por petición de "+user, clid=kick_id)
+        chance_of_backfire = sample(range(100), 1)[0]
+        if chance_of_backfire > 50:
+            kick_id = userid
         else:
-            send_text_to_channel(my_channel, "[b]Error:[/b] ese usuario no esta en el canal.", "red")
-    except Exception as e:
-        send_text_to_channel(my_channel, "[b]Error:[/b] "+str(e), "red")
-    else:
-        send_text_to_channel(my_channel, "[b]"+target_name+"[/b] ha sido kickeado por el comando !kick de [b]"+user+"[/b]")
+            kick_id = get_target_id(text_after_command)
+        try:
+            target_info =  get_client_info(kick_id)
+            target_channel = target_info.parsed[0]['cid']
+            target_name = target_info.parsed[0]['client_nickname']
+            if target_channel == my_channel:
+                ts3conn.clientkick(reasonid=4, reasonmsg="Uso el comando !kick contra "+target_name+" por petición de "+user, clid=kick_id)
+                send_text_to_channel(my_channel, "[b]"+target_name+"[/b] ha sido kickeado por el comando !kick de [b]"+user+"[/b]")
+                kicker_on_cooldown = uniqueid
+            else:
+                send_text_to_channel(my_channel, "[b]Error:[/b] ese usuario no esta en el canal.", "red")
+        except Exception as e:
+            send_text_to_channel(my_channel, "[b]Error:[/b] "+str(e), "red")
         
 def command_plustaxi(user, text_after_command, userid):
     global channel_signed_users
@@ -1333,6 +1337,7 @@ if __name__ == "__main__":
     poll_results = [] #list to store poll results
     bot_disabled = False #store the status of the bot
     channel_signed_users = {} #list to store a global dict to store people that signed in for an specific task
+    kicker_on_cooldown = "" #var to store the uniqueid of the last person using the kick command
 
     with ts3.query.TS3Connection(HOST, PORT) as ts3conn:
         ts3conn.login(client_login_name=USER, client_login_password=PASS)
