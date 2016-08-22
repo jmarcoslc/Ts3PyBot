@@ -35,8 +35,8 @@ from urllib import request
 from random import choice, sample
 from login_data_file import *
 
-INSTALLED_VERSION = "5.2.1"
-VERSION_COMMENTS = "Comando de actualización del bot mejorado."
+INSTALLED_VERSION = "5.3"
+VERSION_COMMENTS = "Comando !Kick añadido."
 
 #################
 # Main bot Code #
@@ -302,6 +302,14 @@ def get_users_in_channel():
                 users_in_channel.append(i["client_nickname"])
     return users_in_channel
 
+def get_target_id(text_after_command):
+    try: #catch serverqueries error
+        requested_data = ts3conn.clientfind(pattern=text_after_command)
+        target_id = requested_data[0]["clid"] 
+    except:
+        target_id = "Error"
+    return target_id
+
 def enable_bot(event):
     global bot_disabled
     user = event.parsed[0]['invokername']
@@ -495,7 +503,7 @@ def channel_message_handler(user, message, userid, uniqueid):
     elif command == "!sierpes": 
         command_sierpes(user, text_after_command, userid, uniqueid)
     elif command == "!kick":
-        command_kick(user, text_after_command, userid, uniqueid)
+        command_kick(user, text_after_command, userid)
     elif command == "+taxi": 
         command_plustaxi(user, text_after_command, userid)
     elif command == "-taxi": 
@@ -511,6 +519,14 @@ def channel_message_handler(user, message, userid, uniqueid):
 # Commands #
 ############
 
+def command_sierpes(user, text_after_command, userid, uniqueid):
+    send_text_to_channel(my_channel, "Error: Comando sin programar, requiere de planificación.", "red")
+    #TBD To be Done
+
+def command_bot(user, text_after_command, userid, uniqueid):
+    send_text_to_channel(my_channel, "Error: No tengo inteligencia artificial todavía, soy un potato.", "red")
+    #TBD long-term project, AI for the bot to answer common questions.
+
 def command_botupdate(userid):
     if check_if_superadmin(userid):
         send_text_to_channel(my_channel, "Actualizando BOT")
@@ -521,18 +537,25 @@ def command_botupdate(userid):
         else:
             send_text_to_channel(my_channel, "No hay actualización disponible") #If reach this line, there is no update available.
 
-def command_kick(user, text_after_command, userid, uniqueid):
-    send_text_to_channel(my_channel, "Error: Comando sin programar.", "red")
-    #TBD To be Done
-    
-def command_sierpes(user, text_after_command, userid, uniqueid):
-    send_text_to_channel(my_channel, "Error: Comando sin programar, requiere de planificación.", "red")
-    #TBD To be Done
-
-def command_bot(user, text_after_command, userid, uniqueid):
-    send_text_to_channel(my_channel, "Error: No tengo inteligencia artificial todavía, soy un potato.", "red")
-    #TBD long-term project, AI for the bot to answer common questions.
-
+def command_kick(user, text_after_command, userid):
+    chance_of_backfire = sample(range(100), 1)[0]
+    if chance_of_backfire > 10:
+        kick_id = userid
+    else:
+        kick_id = get_target_id(text_after_command)
+    try:
+        target_info =  get_client_info(kick_id)
+        target_channel = target_info.parsed[0]['cid']
+        target_name = target_info.parsed[0]['client_nickname']
+        if target_channel == my_channel:
+            ts3conn.clientkick(reasonid=4, reasonmsg="Uso el comando !kick contra "+target_name+" por petición de "+user, clid=kick_id)
+        else:
+            send_text_to_channel(my_channel, "[b]Error:[/b] ese usuario no esta en el canal.", "red")
+    except Exception as e:
+        send_text_to_channel(my_channel, "[b]Error:[/b] "+str(e), "red")
+    else:
+        send_text_to_channel(my_channel, "[b]"+target_name+"[/b] ha sido kickeado por el comando !kick de [b]"+user+"[/b]")
+        
 def command_plustaxi(user, text_after_command, userid):
     global channel_signed_users
     description = get_description(userid)
