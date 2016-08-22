@@ -35,8 +35,8 @@ from urllib import request
 from random import choice, sample
 from login_data_file import *
 
-INSTALLED_VERSION = "5.3.3"
-VERSION_COMMENTS = "Comando !Kick mejorado."
+INSTALLED_VERSION = "5.4"
+VERSION_COMMENTS = "Comando !devtracker añadido."
 
 #################
 # Main bot Code #
@@ -215,24 +215,9 @@ def parse_time_in_days(unparsed_time):
         
 def parse_ip(ip):
     s = str(request.urlopen("http://ip-api.com/json/"+ip).read())
-    #get region
-    start = ',"regionName":"'
-    end = '","'
-    _,_,rest = s.partition(start)
-    region,_,_ = rest.partition(end)
-    #get city 
-    start2 = ',"city":"'
-    end2 = '","'
-    _,_,rest = s.partition(start2)
-    town,_,_ = rest.partition(end2)
-    #get country
-    if "Anonymous Proxy" in s:
-        country = "Localización bloqueada por proxy"
-    else: 
-        start3 = '"country":"'
-        end3 = '","'
-        _,_,rest = s.partition(start3)
-        country,_,_ = rest.partition(end3)
+    region = web_scrap(s, ',"regionName":"', '","')
+    town = web_scrap(s, ',"city":"', '","')
+    country = web_scrap(s, '"country":"', '","')
     if country == "": #just in case
         return "Error de localización."
     else:
@@ -334,6 +319,11 @@ def characters_regex(text_after_command):
             break
     return weird_character
 
+def web_scrap(text, start, end):
+    _,_,rest = text.partition(start)
+    result,_,_ = rest.partition(end)
+    return result
+
 #################
 # Handle events #
 #################
@@ -408,6 +398,7 @@ def messages_handler(event):
     except KeyError:
         send_text_to_channel(my_channel, "Error trying to get your message data.", "red")
     else:
+        time.sleep(0.3) #This delay is to prevent an issue in the chat where the bot would appear that answers before you send a command.
         if targetmode == "1":
             private_message_handler(user, message, userid, uniqueid)
         elif targetmode == "2":
@@ -417,7 +408,7 @@ def private_message_handler(user, message, userid, uniqueid):
     message_divided = get_command(message)
     command =  message_divided[0]
     text_after_command =  message_divided[1]
-    time.sleep(1) #This delay is to prevent an issue in the chat where the bot would appear that answers before you send a command.
+    time.sleep(0.2) #This delay is to prevent an issue in the chat where the bot would appear that answers before you send a command.
     if command.lower() == "!say":
         command_say(userid, text_after_command)
     elif command.lower() == "!ignorame":
@@ -510,6 +501,8 @@ def channel_message_handler(user, message, userid, uniqueid):
         command_minustaxi(user, userid)
     elif command == "taxi": 
         command_taxies()
+    elif command == "!devtracker": 
+        command_devtracker()
     elif command == "!recuento": 
         command_recuento(text_after_command)
     elif poll_status == True: 
@@ -526,6 +519,24 @@ def command_sierpes(user, text_after_command, userid, uniqueid):
 def command_bot(user, text_after_command, userid, uniqueid):
     send_text_to_channel(my_channel, "Error: No tengo inteligencia artificial todavía, soy un potato.", "red")
     #TBD long-term project, AI for the bot to answer common questions.
+
+def readable_formatting(text):
+    result = text.replace("<p>", "").replace("</p>", "").replace("</div>", "")
+    return result
+
+def command_devtracker():
+    send_text_to_channel(my_channel, "Un momento, por favor...")
+    webpage_stored = "https://forum-en.guildwars2.com/forum/info/devtracker"
+    webpage_stored = urllib.parse.quote(webpage_stored, safe='/:-=', encoding="utf-8", errors="strict")
+    webpage_stored = str(request.urlopen(webpage_stored).read().decode('utf8'))
+    #get just first comment
+    first_comment = web_scrap(webpage_stored, '<a class="topic arenanet"', '<div class="signature-content">')
+    comment_author = web_scrap(first_comment, '<a class="member arenanet" href="/members/', '">')
+    comment_date = web_scrap(first_comment, 'data-last-message="', '">')
+    comment_link = "http://forum-en.guildwars2.com" + web_scrap(first_comment, 'href="', '"')
+    comment_content = web_scrap(first_comment+"ENDS HERE123", '<div class="message-content">', 'ENDS HERE123')
+    comment_content = readable_formatting(comment_content)
+    send_text_to_channel(my_channel, "\n"+comment_date+" - [b]"+comment_author+":[/b] [/color][color=green][b]" + comment_content + "[/b] [/color] - [color=purple][b][url=" + comment_link + "]Ver en la web[/url][/b]")
 
 def command_botupdate(userid):
     if check_if_superadmin(userid):
@@ -565,7 +576,7 @@ def command_kick(user, text_after_command, userid, uniqueid):
                 send_text_to_channel(my_channel, "[b]Error:[/b] "+target_name+" no esta en el canal.", "red")
         except Exception as e:
             send_text_to_channel(my_channel, "[b]Error:[/b] "+str(e), "red")
-      
+        
 def command_plustaxi(user, text_after_command, userid):
     global channel_signed_users
     description = get_description(userid)
@@ -660,10 +671,7 @@ def command_youtube(user, text_after_command):
             webpage_stored = "http://www.youtube.com/results?search_query=" + text_after_command.replace(" ","+")
             webpage_stored = urllib.parse.quote(webpage_stored, safe='/:?+=', encoding="utf-8", errors="strict")
             webpage_stored = str(request.urlopen(webpage_stored).read().decode('utf8'))
-            start = '<div class="yt-lockup-content"><h3 class="yt-lockup-title "><a href="'
-            end = '"'
-            _,_,rest = webpage_stored.partition(start)
-            link_id,_,_ = rest.partition(end)
+            link_id = web_scrap(webpage_stored, '<div class="yt-lockup-content"><h3 class="yt-lockup-title "><a href="', '"')
             link = "http://www.youtube.com" + link_id
             send_text_to_channel(my_channel, "[b]Busqueda de youtube:[/b] [/color][color=green][b]" + str(text_after_command) + "[/b] [/color] - [color=purple][b][url=" + link + "]He encontrado esto (Click Aqui)[/url][/b]")
         except UnicodeEncodeError:
