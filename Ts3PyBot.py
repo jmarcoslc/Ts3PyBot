@@ -35,8 +35,8 @@ from urllib import request
 from random import choice, sample
 from login_data_file import *
 
-INSTALLED_VERSION = "5.3.1"
-VERSION_COMMENTS = "Comando !Kick añadido."
+INSTALLED_VERSION = "5.3.2"
+VERSION_COMMENTS = "Comando !Kick mejorado."
 
 #################
 # Main bot Code #
@@ -540,7 +540,7 @@ def command_botupdate(userid):
 def command_kick(user, text_after_command, userid, uniqueid):
     global kicker_on_cooldown
     if kicker_on_cooldown == uniqueid:
-        send_text_to_channel(my_channel, "[b]Error:[/b] "+user+", juega limpio y deja de abusar.", "red")
+        send_text_to_channel(my_channel, "[b]Error:[/b] estás en cooldown,"+user+", no acepto más kicks tuyos.", "red")
     else:
         chance_of_backfire = sample(range(100), 1)[0]
         if chance_of_backfire > 50:
@@ -552,11 +552,13 @@ def command_kick(user, text_after_command, userid, uniqueid):
             target_channel = target_info.parsed[0]['cid']
             target_name = target_info.parsed[0]['client_nickname']
             if target_channel == my_channel:
+                if userid == kick_id:
+                    send_text_to_channel(my_channel, "No quiero.")
                 ts3conn.clientkick(reasonid=4, reasonmsg="Uso el comando !kick contra "+target_name+" por petición de "+user, clid=kick_id)
                 send_text_to_channel(my_channel, "[b]"+target_name+"[/b] ha sido kickeado por el comando !kick de [b]"+user+"[/b]")
                 kicker_on_cooldown = uniqueid
             else:
-                send_text_to_channel(my_channel, "[b]Error:[/b] ese usuario no esta en el canal.", "red")
+                send_text_to_channel(my_channel, "[b]Error:[/b] "+target_name+" no esta en el canal.", "red")
         except Exception as e:
             send_text_to_channel(my_channel, "[b]Error:[/b] "+str(e), "red")
         
