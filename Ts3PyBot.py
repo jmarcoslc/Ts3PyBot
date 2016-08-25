@@ -31,13 +31,14 @@ import sys
 import subprocess
 import urllib
 import re
+import platform
 from urllib import request
 from random import choice, sample
 from bs4 import BeautifulSoup
 from login_data_file import *
 
-INSTALLED_VERSION = "5.5"
-VERSION_COMMENTS = "Web-Scrapping hecho con BeautifulSoup :D ahora todo es más chachi."
+INSTALLED_VERSION = "5.5.1"
+VERSION_COMMENTS = "Web-Scrapping hecho con BeautifulSoup :D ahora todo es más chachi. Corregido bug con el comando !clon."
 
 #################
 # Main bot Code #
@@ -642,7 +643,10 @@ def command_clone(text_after_command, userid):
             except Exception as e:
                 send_text_to_channel(my_channel, "[b]No encuentro ningún canal llamado así:[/b] "+str(e), "red")
             else:
-                subprocess.Popen(["python3.4", sys.argv[0], text_after_command])
+                if platform.system() == "Linux":
+                	subprocess.Popen([sys.argv[0], text_after_command])
+                else:
+                	subprocess.Popen(["python", sys.argv[0], text_after_command])
                 send_text_to_channel(my_channel, "[b]Clon creado con exito en el canal con ID[/b] "+str(channel_id))
 
 def command_calcula(text_after_command):
