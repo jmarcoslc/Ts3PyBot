@@ -691,9 +691,9 @@ def command_youtube(user, text_after_command):
                     title = video.find('a')['title']
                     lenght = video.find('span', {'class' : 'accessible-description'}).getText()
                     link = video.find('a')['href']
-                    formatted_text = link = "[url=http://www.youtube.com" + link + "]"+title+"[/url] ("+lenght+")"
+                    formatted_text = link = "[url=http://www.youtube.com" + link + "]"+title+"[/url]"+lenght
                     list_of_videos.append(formatted_text)
-            send_text_to_channel(my_channel, "He encontrado esto:\n"+ "\n".join(list_of_videos))
+            send_text_to_channel(my_channel, "[b]Buscando [/b][/color][color=green][b]"+text_after_command+"[/b][/color][color=purple][b] en Youtube he encontrado esto:\n"+ "\n".join(list_of_videos))
         else:
             send_text_to_channel(my_channel, "Error: Status Code: " + str(status_code), "red")
 
