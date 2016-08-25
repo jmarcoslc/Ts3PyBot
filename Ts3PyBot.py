@@ -33,10 +33,11 @@ import urllib
 import re
 from urllib import request
 from random import choice, sample
+from bs4 import BeautifulSoup
 from login_data_file import *
 
-INSTALLED_VERSION = "5.4"
-VERSION_COMMENTS = "Comando !devtracker añadido."
+INSTALLED_VERSION = "5.5"
+VERSION_COMMENTS = "Web-Scrapping hecho con BeautifulSoup :D ahora todo es más chachi."
 
 #################
 # Main bot Code #
@@ -450,7 +451,9 @@ def channel_message_handler(user, message, userid, uniqueid):
     elif command == "!trae": 
         command_trae(user, text_after_command, userid, command)
     elif command == "!apagate": 
-        command_apagate(user, text_after_command, userid, command)
+        command_apagate(user, userid, command)
+    elif command == "!devtracker": 
+        command_devtracker(user, text_after_command, userid, command)
         
     #These don't require permissions
     elif command == "!version": 
@@ -501,8 +504,6 @@ def channel_message_handler(user, message, userid, uniqueid):
         command_minustaxi(user, userid)
     elif command == "taxi": 
         command_taxies()
-    elif command == "!devtracker": 
-        command_devtracker()
     elif command == "!recuento": 
         command_recuento(text_after_command)
     elif poll_status == True: 
@@ -524,19 +525,29 @@ def readable_formatting(text):
     result = text.replace("<p>", "").replace("</p>", "").replace("</div>", "")
     return result
 
-def command_devtracker():
-    send_text_to_channel(my_channel, "Un momento, por favor...")
-    webpage_stored = "https://forum-en.guildwars2.com/forum/info/devtracker"
-    webpage_stored = urllib.parse.quote(webpage_stored, safe='/:-=', encoding="utf-8", errors="strict")
-    webpage_stored = str(request.urlopen(webpage_stored).read().decode('utf8'))
-    #get just first comment
-    first_comment = web_scrap(webpage_stored, '<a class="topic arenanet"', '<div class="signature-content">')
-    comment_author = web_scrap(first_comment, '<a class="member arenanet" href="/members/', '">')
-    comment_date = web_scrap(first_comment, 'data-last-message="', '">')
-    comment_link = "http://forum-en.guildwars2.com" + web_scrap(first_comment, 'href="', '"')
-    comment_content = web_scrap(first_comment+"ENDS HERE123", '<div class="message-content">', 'ENDS HERE123')
-    comment_content = readable_formatting(comment_content)
-    send_text_to_channel(my_channel, "\n"+comment_date+" - [b]"+comment_author+":[/b] [/color][color=green][b]" + comment_content + "[/b] [/color] - [color=purple][b][url=" + comment_link + "]Ver en la web[/url][/b]")
+def command_devtracker(user, text_after_command, userid, command):
+    if check_if_admin(user, userid, command) == True:
+        if len(text_after_command) == 1 and text_after_command.startswith(("1", "2", "3", "4", "5", "6", "7", "8", "9")):
+            send_text_to_channel(my_channel, "Un momento, por favor...")
+            webpage_url = "https://forum-en.guildwars2.com/forum/info/devtracker"
+            webpage_request = request.urlopen(webpage_url)
+            status_code = webpage_request.getcode()
+            if status_code == 200:
+                list_of_posts = []
+                html = BeautifulSoup(webpage_request, "html.parser")
+                posts = html.find_all('div',{'class':'arenanet post'})
+                for i,post in enumerate(posts):
+                    author = post.find('a', {'class' : 'member arenanet'}).getText()
+                    date = post.find('time', {'class' : 'changeabletime'}).getText()
+                    content = post.find('div', {'class' : 'message-content'}).getText()
+                    if len(list_of_posts) < int(text_after_command):
+                        list_of_posts.append("[b]"+date+" - "+author+"[/b]"+content)
+                for i in list_of_posts:
+                    send_text_to_channel(my_channel, i)
+            else:
+                send_text_to_channel(my_channel, "Error: Status Code: " + str(status_code), "red")
+        else:
+            send_text_to_channel(my_channel, "Error: Parametro no valido, escribe del 1 al 9 cuantos posts quieres que lea. Ejemplo: !devtracker 4", "red")
 
 def command_botupdate(userid):
     if check_if_superadmin(userid):
@@ -667,17 +678,24 @@ def command_youtube(user, text_after_command):
     if text_after_command == "":
         send_text_to_channel(my_channel, "Error, "+user+": Tienes que decirme qué buscar.", "red")
     else:
-        try:
-            webpage_stored = "http://www.youtube.com/results?search_query=" + text_after_command.replace(" ","+")
-            webpage_stored = urllib.parse.quote(webpage_stored, safe='/:?+=', encoding="utf-8", errors="strict")
-            webpage_stored = str(request.urlopen(webpage_stored).read().decode('utf8'))
-            link_id = web_scrap(webpage_stored, '<div class="yt-lockup-content"><h3 class="yt-lockup-title "><a href="', '"')
-            link = "http://www.youtube.com" + link_id
-            send_text_to_channel(my_channel, "[b]Busqueda de youtube:[/b] [/color][color=green][b]" + str(text_after_command) + "[/b] [/color] - [color=purple][b][url=" + link + "]He encontrado esto (Click Aqui)[/url][/b]")
-        except UnicodeEncodeError:
-            send_text_to_channel(my_channel, "Esa busqueda da error, prueba a cambiar letras (sin acentos, etc)", "red")
-        except Exception as e:
-            send_text_to_channel(my_channel, "[b]Error inesperado: [/b]"+str(e), "red")
+        webpage_url = "http://www.youtube.com/results?search_query=" + text_after_command.replace(" ","+")
+        webpage_url = urllib.parse.quote(webpage_url, safe='/:?+=', encoding="utf-8", errors="strict")
+        webpage_request = request.urlopen(webpage_url)
+        status_code = webpage_request.getcode()
+        if status_code == 200:
+            list_of_videos = []
+            html = BeautifulSoup(webpage_request, "html.parser")
+            videos = html.find_all('div',{'class':'yt-lockup-content'})
+            for i,video in enumerate(videos):
+                if len(list_of_videos) < 5:
+                    title = video.find('a')['title']
+                    lenght = video.find('span', {'class' : 'accessible-description'}).getText()
+                    link = video.find('a')['href']
+                    formatted_text = link = "[url=http://www.youtube.com" + link + "]"+title+"[/url] ("+lenght+")"
+                    list_of_videos.append(formatted_text)
+            send_text_to_channel(my_channel, "He encontrado esto:\n"+ "\n".join(list_of_videos))
+        else:
+            send_text_to_channel(my_channel, "Error: Status Code: " + str(status_code), "red")
 
 def command_patchday(text_after_command, userid):
     if check_if_superadmin(userid):
